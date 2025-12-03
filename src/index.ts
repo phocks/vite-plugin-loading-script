@@ -5,16 +5,18 @@ import { OutputBundle, OutputChunk } from "rollup";
 export function loadingScript({
   externalSrc,
   fileName = "app",
+  shouldHash = true,
   crossorigin = false,
   crossoriginVal = "",
 }: {
   externalSrc?: string;
   fileName?: string;
+  shouldHash?: boolean;
   crossorigin?: boolean;
   crossoriginVal?: string;
 } = {}): Plugin {
   return {
-    name: "vite-plugin-loading-script",
+    name: "vite-plugin-script-loader",
     apply: "build",
     generateBundle(_, bundle: OutputBundle) {
       const newScript = generateLoadingScript(
@@ -25,7 +27,9 @@ export function loadingScript({
       );
       this.emitFile({
         type: "asset",
-        fileName: `${fileName}.${sum(newScript)}.js`,
+        fileName: shouldHash
+          ? `${fileName}.${sum(newScript)}.js`
+          : `${fileName}.js`,
         source: newScript,
       });
     },
