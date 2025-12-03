@@ -42,8 +42,13 @@ const generateLoadingScript = (
   crossorigin?: boolean,
   crossoriginVal?: string
 ): string => {
-  let scriptCode =
-    "(function () {let scriptTag = document.getElementsByTagName('script');scriptTag = scriptTag[scriptTag.length - 1];const parent = scriptTag.parentNode;";
+  let scriptCode = `
+(function () {
+  var scriptTag = document.currentScript;
+  var src = scriptTag.src;
+  var basePath = src.substring(0, src.lastIndexOf('/') + 1);
+  var parent = scriptTag.parentNode;
+`;
   let counter = 0;
   for (const key in bundle) {
     const filename = externalSource
@@ -54,14 +59,14 @@ const generateLoadingScript = (
       const chunk = bundle[key] as OutputChunk;
       if (chunk.isEntry) {
         scriptCode += `const ${varName} = document.createElement('script');`;
-        scriptCode += `${varName}.setAttribute('src', '${filename}');`;
+        scriptCode += `${varName}.setAttribute('src', basePath + '${filename}');`;
         scriptCode += `${varName}.setAttribute('type', 'module');`;
         if (crossorigin) {
           scriptCode += `${varName}.setAttribute('crossorigin', '${crossoriginVal}');`;
         }
       } else {
         scriptCode += `const ${varName} = document.createElement('link');`;
-        scriptCode += `${varName}.setAttribute('href', '${filename}');`;
+        scriptCode += `${varName}.setAttribute('href', basePath + '${filename}');`;
         scriptCode += `${varName}.setAttribute('rel', 'modulepreload');`;
       }
     } else if (
@@ -69,7 +74,7 @@ const generateLoadingScript = (
       bundle[key].fileName.endsWith(".css")
     ) {
       scriptCode += `const ${varName} = document.createElement('link');`;
-      scriptCode += `${varName}.setAttribute('href', '${filename}');`;
+      scriptCode += `${varName}.setAttribute('href', basePath + '${filename}');`;
       scriptCode += `${varName}.setAttribute('rel', 'stylesheet');`;
     } else {
       continue;
