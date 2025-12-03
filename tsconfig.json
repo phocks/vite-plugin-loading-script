@@ -12,9 +12,17 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "outDir": "dist",
-    "lib": ["esnext"],
-    "sourceMap": true
+    "lib": [
+      "esnext"
+    ],
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["./src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
