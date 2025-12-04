@@ -1,5 +1,5 @@
 import sum from "hash-sum";
-import { Plugin } from "vite";
+import { PluginOption } from "vite";
 import { OutputBundle, OutputChunk } from "rollup";
 
 export function loadingScript({
@@ -14,7 +14,7 @@ export function loadingScript({
   shouldHash?: boolean;
   crossorigin?: boolean;
   crossoriginVal?: string;
-} = {}): Plugin {
+} = {}): PluginOption {
   return {
     name: "vite-plugin-script-loader",
     apply: "build",
