@@ -1,6 +1,15 @@
 import sum from "hash-sum";
-import { PluginOption } from "vite";
+import { PluginOption, ViteDevServer } from "vite";
 import { OutputBundle, OutputChunk } from "rollup";
+
+interface LoadingScriptOptions {
+  externalSrc?: string;
+  fileName?: string;
+  shouldHash?: boolean;
+  crossorigin?: boolean;
+  crossoriginVal?: string;
+  devEntry?: string;
+}
 
 export function loadingScript({
   externalSrc,
@@ -8,16 +17,10 @@ export function loadingScript({
   shouldHash = true,
   crossorigin = false,
   crossoriginVal = "",
-}: {
-  externalSrc?: string;
-  fileName?: string;
-  shouldHash?: boolean;
-  crossorigin?: boolean;
-  crossoriginVal?: string;
-} = {}): PluginOption {
+  devEntry = "src/main.ts",
+}: LoadingScriptOptions = {}): PluginOption {
   return {
     name: "vite-plugin-script-loader",
-    apply: "build",
     generateBundle(_, bundle: OutputBundle) {
       const newScript = generateLoadingScript(
         bundle,
@@ -31,6 +34,30 @@ export function loadingScript({
           ? `${fileName}.${sum(newScript)}.js`
           : `${fileName}.js`,
         source: newScript,
+      });
+    },
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        if (req.originalUrl === "/index.js") {
+          const devLoader = `
+(function () {
+  var scriptTag = document.currentScript;
+  var src = scriptTag.src;
+  var basePath = src.substring(0, src.lastIndexOf("/") + 1);
+  var parent = scriptTag.parentNode;
+
+  const entry = document.createElement("script");
+  entry.setAttribute("src", basePath + "${devEntry}");
+  entry.setAttribute("type", "module");
+  parent.appendChild(entry);
+})();
+            `.trim();
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/javascript");
+          res.end(devLoader);
+          return;
+        }
+        next();
       });
     },
   };
@@ -51,6 +78,8 @@ const generateLoadingScript = (
 `;
   let counter = 0;
   for (const key in bundle) {
+    // TODO: External source might not make sense any more considering
+    // detection of currentScript src and basePath. Maybe remove.
     const filename = externalSource
       ? externalSource + bundle[key].fileName
       : bundle[key].fileName;
