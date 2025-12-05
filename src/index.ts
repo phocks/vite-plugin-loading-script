@@ -14,8 +14,8 @@ interface LoadingScriptOptions {
 
 export function loadingScript({
   externalSrc,
-  fileName = "app",
-  shouldHash = true,
+  fileName = "index",
+  shouldHash = false,
   crossorigin = false,
   crossoriginVal = "",
   devEntry = "src/main.ts",
