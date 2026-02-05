@@ -13,14 +13,14 @@ It's basically a 'wrapping' script that uses `iife` and will add the `<script>` 
 
 ## Installation
 ```
-npm install vite-plugin-loading-script -D
+npm install vite-plugin-script-loader -D
 ```
 
 ## How to use?
 ```js
 import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
-import { loadingScript } from 'vite-plugin-loading-script'
+import { loadingScript } from 'vite-plugin-script-loader'
 
 export default defineConfig({
 	plugins: [vue(), loadingScript(/** options **/)]
